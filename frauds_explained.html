@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light"> <!-- Default theme -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The GST Fraud Investigator's Handbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        /* --- THEME DEFINITIONS --- */
+        :root,
+        html[data-theme='light'] {
+            --bg-color: #f9fafb;
+            --panel-bg: #ffffff;
+            --text-color: #1f2937;
+            --text-muted-color: #6b7280;
+            --border-color: #e5e7eb;
+            --accent-color: #2563eb;
+            --accent-text-color: #ffffff;
+            --header-bg: #ffffff;
+            --tag-bg: #e0e7ff;
+            /* Tag background */
+            --tag-text: #3730a3;
+            /* Tag text */
+        }
+
+        html[data-theme='dark'] {
+            --bg-color: #111827;
+            --panel-bg: #1f2937;
+            --text-color: #f3f4f6;
+            --text-muted-color: #9ca3af;
+            --border-color: #374151;
+            --accent-color: #3b82f6;
+            --accent-text-color: #ffffff;
+            --header-bg: #1f2937;
+            --tag-bg: #374151;
+            /* Tag background */
+            --tag-text: #d1d5db;
+            /* Tag text */
+        }
+
+        html[data-theme='slate'] {
+            --bg-color: #e2e8f0;
+            --panel-bg: #f1f5f9;
+            --text-color: #1e293b;
+            --text-muted-color: #475569;
+            --border-color: #cbd5e1;
+            --accent-color: #64748b;
+            --accent-text-color: #ffffff;
+            --header-bg: #f1f5f9;
+            --tag-bg: #cbd5e1;
+            /* Tag background */
+            --tag-text: #334155;
+            /* Tag text */
+        }
+
+        /* General Styling */
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .theme-btn[data-active='true'] {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- This small script block runs immediately to prevent a "flash" of the wrong theme -->
+    <script>
+        (function () {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <div class="flex flex-col h-screen">
+        <header
+            class="relative text-center p-4 border-b bg-[var(--header-bg)] border-[var(--border-color)] flex-shrink-0">
+            <div class="max-w-7xl mx-auto flex justify-center items-center">
+                <div class="flex-1">
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-[var(--text-color)]">
+                        The GST Fraud Investigator's Handbook
+                    </h1>
+                </div>
+                <!-- THEME SWITCHER UI -->
+                <div id="theme-switcher" class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+                    <button title="Switch to Light Theme"
+                        class="theme-btn w-6 h-6 rounded-full bg-white border border-gray-300"
+                        data-theme="light"></button>
+                    <button title="Switch to Dark Theme" class="theme-btn w-6 h-6 rounded-full bg-gray-800"
+                        data-theme="dark"></button>
+                    <button title="Switch to Slate Theme" class="theme-btn w-6 h-6 rounded-full bg-slate-500"
+                        data-theme="slate"></button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow md:flex md:space-x-4 p-2 sm:p-4 overflow-hidden">
+            <!-- Left Column (Navigation) -->
+            <aside class="md:w-1/3 lg:w-1/4 flex-shrink-0">
+                <div class="bg-[var(--panel-bg)] p-3 rounded-xl shadow-md h-full overflow-y-auto">
+                    <h2
+                        class="text-lg font-bold text-[var(--text-color)] p-2 mb-2 border-b border-[var(--border-color)]">
+                        Fraud Types</h2>
+                    <nav id="fraud-list-container" class="space-y-1">
+                        <!-- JS will populate this list -->
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Right Column (Content) -->
+            <section id="content-container"
+                class="flex-grow mt-4 md:mt-0 bg-[var(--panel-bg)] p-4 sm:p-6 rounded-2xl shadow-xl overflow-y-auto">
+                <!-- JS will populate this content area -->
+            </section>
+        </main>
+    </div>
+
+    <!-- SCRIPT LOADING -->
+    <script src="fraud_data.js"></script>
+    <script>
+        const fraudListContainer = document.getElementById('fraud-list-container');
+        const contentContainer = document.getElementById('content-container');
+        const themeSwitcher = document.getElementById('theme-switcher');
+
+        let allFraudData = [];
+        let selectedFraudId = 'overview-chart'; // Default view
+
+        // --- THEME LOGIC ---
+        const applyTheme = (theme) => {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+
+            themeSwitcher.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.setAttribute('data-active', btn.dataset.theme === theme);
+            });
+        };
+
+        themeSwitcher.addEventListener('click', (e) => {
+            if (e.target.classList.contains('theme-btn')) {
+                applyTheme(e.target.dataset.theme);
+                if (selectedFraudId === 'overview-chart') {
+                    renderContent();
+                }
+            }
+        });
+
+        // --- APPLICATION LOGIC ---
+        const renderFraudList = () => {
+            fraudListContainer.innerHTML = '';
+            allFraudData.forEach(fraud => {
+                const isSelected = selectedFraudId === fraud.id;
+                // **FIX:** Explicitly set text color for inactive state and use theme variable for active text color
+                const listItemClasses = `flex items-center p-3 rounded-lg cursor-pointer transition-colors duration-200 ${isSelected
+                        ? 'text-[var(--accent-text-color)] bg-[var(--accent-color)] shadow-sm'
+                        : 'text-[var(--text-color)] hover:bg-[var(--bg-color)]'
+                    }`;
+
+                const listItem = document.createElement('div');
+                listItem.className = listItemClasses;
+                listItem.setAttribute('data-id', fraud.id);
+                listItem.innerHTML = `
+                    <span class="text-2xl mr-4">${fraud.icon}</span>
+                    <span class="font-semibold">${fraud.title}</span>
+                `;
+
+                listItem.addEventListener('click', () => {
+                    selectedFraudId = fraud.id;
+                    renderFraudList();
+                    renderContent();
+                });
+                fraudListContainer.appendChild(listItem);
+            });
+        };
+
+        const renderContent = () => {
+            if (selectedFraudId === 'overview-chart') {
+                contentContainer.innerHTML = `
+                    <div class="animate-fade-in">
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-[var(--text-color)] mb-4">Fraud Landscape Overview</h2>
+                        <p class="text-[var(--text-muted-color)] mb-8">This chart illustrates the estimated prevalence of various GST fraud types detected by authorities. Fake ITC claims consistently represent the largest share of tax evasion.</p>
+                        <canvas id="fraudChart"></canvas>
+                    </div>`;
+
+                const rootStyle = getComputedStyle(document.documentElement);
+                const chartTextColor = rootStyle.getPropertyValue('--text-muted-color');
+                const chartBorderColor = rootStyle.getPropertyValue('--border-color');
+                const chartTitleColor = rootStyle.getPropertyValue('--text-color');
+
+                Chart.defaults.color = chartTextColor;
+
+                const ctx = document.getElementById('fraudChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Fake ITC Claims', 'Underreporting Sales', 'Export Fraud', 'Misclassification', 'Circular Trading', 'Non-Filing'],
+                        datasets: [{
+                            label: 'Prevalence of Fraud Type (Illustrative %)',
+                            data: [45, 25, 12, 8, 7, 3],
+                            backgroundColor: ['rgba(239, 68, 68, 0.6)', 'rgba(249, 115, 22, 0.6)', 'rgba(234, 179, 8, 0.6)', 'rgba(34, 197, 94, 0.6)', 'rgba(59, 130, 246, 0.6)', 'rgba(139, 92, 246, 0.6)'],
+                            borderColor: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        scales: { x: { beginAtZero: true, grid: { color: chartBorderColor } }, y: { grid: { color: chartBorderColor } } },
+                        responsive: true,
+                        plugins: { legend: { display: false }, title: { display: true, text: 'Common GST Fraud Schemes by Detected Volume', color: chartTitleColor } }
+                    }
+                });
+                return;
+            }
+
+            const fraud = allFraudData.find(f => f.id === selectedFraudId);
+            if (!fraud) {
+                contentContainer.innerHTML = `<p class="text-red-500">Error: Could not find the selected fraud data.</p>`;
+                return;
+            }
+
+            contentContainer.innerHTML = `
+                <div class="animate-fade-in">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-[var(--text-color)] mb-4">${fraud.title}</h2>
+                    <div class="flex border-b border-[var(--border-color)] mb-6">
+                        <button class="tab-btn px-4 py-2 text-[var(--text-muted-color)] text-sm sm:text-base active" data-tab="overview">Overview</button>
+                        <button class="tab-btn px-4 py-2 text-[var(--text-muted-color)] text-sm sm:text-base" data-tab="case-study">Case Study</button>
+                        <button class="tab-btn px-4 py-2 text-[var(--text-muted-color)] text-sm sm:text-base" data-tab="investigation">Investigation Guide</button>
+                    </div>
+                    <div id="tab-content">
+                        <div id="overview-content" class="tab-pane active space-y-6">
+                            <div><h3 class="text-xl font-semibold text-[var(--text-color)] mb-2">What is it?</h3><p class="text-[var(--text-muted-color)] leading-relaxed">${fraud.explanation}</p></div>
+                            <div class="p-4 bg-[var(--bg-color)] border-l-4 border-yellow-400 rounded-r-lg"><h4 class="font-semibold text-[var(--text-color)] mb-1">Simple Example</h4><p class="text-[var(--text-muted-color)] italic">${fraud.example}</p></div>
+                            <div><h3 class="text-xl font-semibold text-[var(--text-color)] mb-3">Commonly Involved Industries</h3><div class="flex flex-wrap gap-2">
+                                <!-- **FIX:** Use theme variables for tag styling -->
+                                ${fraud.involvedIndustries.map(industry => `<span class="bg-[var(--tag-bg)] text-[var(--tag-text)] text-sm font-medium px-3 py-1 rounded-full">${industry}</span>`).join('')}
+                            </div></div>
+                        </div>
+                        <div id="case-study-content" class="tab-pane"><div class="p-4 bg-indigo-50/20 border-l-4 border-indigo-400 rounded-r-lg"><div class="text-[var(--text-muted-color)]">${fraud.caseStudy.replace(/text-gray-600/g, 'text-[var(--text-muted-color)]')}</div></div></div>
+                        <div id="investigation-content" class="tab-pane"><div class="text-[var(--text-muted-color)]">${fraud.investigationGuide.replace(/text-gray-600/g, 'text-[var(--text-muted-color)]').replace(/text-gray-700/g, 'text-[var(--text-color)]').replace(/text-gray-800/g, 'text-[var(--text-color)] font-bold')}</div></div>
+                    </div>
+                </div>`;
+
+            const tabButtons = contentContainer.querySelectorAll('.tab-btn');
+            const tabPanes = contentContainer.querySelectorAll('.tab-pane');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    const tabId = button.getAttribute('data-tab');
+                    tabPanes.forEach(pane => {
+                        pane.classList.remove('active');
+                        if (pane.id === `${tabId}-content`) pane.classList.add('active');
+                    });
+                });
+            });
+        };
+
+        window.onload = () => {
+            if (typeof fraudData !== 'undefined') {
+                allFraudData = fraudData;
+                renderFraudList();
+                renderContent();
+                applyTheme(localStorage.getItem('theme') || 'light');
+            } else {
+                console.error('Error: fraud_data.js did not load or the fraudData variable is not defined.');
+                fraudListContainer.innerHTML = `<p class="p-4 text-red-500">Failed to load data. Please check the browser console for errors.</p>`;
+            }
+        };
+    </script>
+</body>
+
+</html>
