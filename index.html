@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light"> <!-- Default theme -->
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -22,9 +22,7 @@
             --accent-text-color: #ffffff;
             --header-bg: #ffffff;
             --tag-bg: #e0e7ff;
-            /* Tag background */
             --tag-text: #3730a3;
-            /* Tag text */
         }
 
         html[data-theme='dark'] {
@@ -37,9 +35,7 @@
             --accent-text-color: #ffffff;
             --header-bg: #1f2937;
             --tag-bg: #374151;
-            /* Tag background */
             --tag-text: #d1d5db;
-            /* Tag text */
         }
 
         html[data-theme='slate'] {
@@ -52,9 +48,7 @@
             --accent-text-color: #ffffff;
             --header-bg: #f1f5f9;
             --tag-bg: #cbd5e1;
-            /* Tag background */
             --tag-text: #334155;
-            /* Tag text */
         }
 
         /* General Styling */
@@ -75,13 +69,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .tab-btn {
@@ -95,14 +84,8 @@
             font-weight: 600;
         }
 
-        .tab-pane {
-            display: none;
-        }
-
-        .tab-pane.active {
-            display: block;
-        }
-
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
         .theme-btn[data-active='true'] {
             outline: 2px solid var(--accent-color);
             outline-offset: 2px;
@@ -111,7 +94,7 @@
 </head>
 
 <body>
-    <!-- This small script block runs immediately to prevent a "flash" of the wrong theme -->
+    <!-- This script prevents a "flash" of the wrong theme -->
     <script>
         (function () {
             const theme = localStorage.getItem('theme') || 'light';
@@ -120,43 +103,52 @@
     </script>
 
     <div class="flex flex-col h-screen">
-        <header
-            class="relative text-center p-4 border-b bg-[var(--header-bg)] border-[var(--border-color)] flex-shrink-0">
-            <div class="max-w-7xl mx-auto flex justify-center items-center">
-                <div class="flex-1">
-                    <h1 class="text-2xl md:text-3xl font-extrabold text-[var(--text-color)]">
-                        The GST Fraud Investigator's Handbook
+        <header class="relative p-4 border-b bg-[var(--header-bg)] border-[var(--border-color)] flex-shrink-0 z-20">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <!-- Mobile Menu Button (Hamburger) -->
+                <div class="md:hidden">
+                    <button id="menu-open-btn" class="p-2 rounded-md text-[var(--text-color)] hover:bg-[var(--bg-color)]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Title -->
+                <div class="flex-1 text-center">
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-[var(--text-color)]">
+                        GST Fraud Investigator's Handbook
                     </h1>
                 </div>
-                <!-- THEME SWITCHER UI -->
-                <div id="theme-switcher" class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                    <button title="Switch to Light Theme"
-                        class="theme-btn w-6 h-6 rounded-full bg-white border border-gray-300"
-                        data-theme="light"></button>
-                    <button title="Switch to Dark Theme" class="theme-btn w-6 h-6 rounded-full bg-gray-800"
-                        data-theme="dark"></button>
-                    <button title="Switch to Slate Theme" class="theme-btn w-6 h-6 rounded-full bg-slate-500"
-                        data-theme="slate"></button>
+
+                <!-- Theme Switcher -->
+                <div id="theme-switcher" class="flex items-center space-x-2">
+                    <button title="Switch to Light Theme" class="theme-btn w-6 h-6 rounded-full bg-white border border-gray-300" data-theme="light"></button>
+                    <button title="Switch to Dark Theme" class="theme-btn w-6 h-6 rounded-full bg-gray-800" data-theme="dark"></button>
+                    <button title="Switch to Slate Theme" class="theme-btn w-6 h-6 rounded-full bg-slate-500" data-theme="slate"></button>
                 </div>
             </div>
         </header>
 
-        <main class="flex-grow md:flex md:space-x-4 p-2 sm:p-4 overflow-hidden">
-            <!-- Left Column (Navigation) -->
-            <aside class="md:w-1/3 lg:w-1/4 flex-shrink-0">
-                <div class="bg-[var(--panel-bg)] p-3 rounded-xl shadow-md h-full overflow-y-auto">
-                    <h2
-                        class="text-lg font-bold text-[var(--text-color)] p-2 mb-2 border-b border-[var(--border-color)]">
-                        Intelligence Menu</h2>
-                    <nav id="fraud-list-container" class="space-y-1">
-                        <!-- JS will populate this list -->
-                    </nav>
+        <main class="flex-grow flex overflow-hidden">
+            <!-- Mobile Menu Overlay -->
+            <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+            <!-- Left Column (Navigation) - Now an off-canvas menu on mobile -->
+            <aside id="nav-sidebar" class="fixed inset-y-0 left-0 md:relative bg-[var(--panel-bg)] w-3/4 max-w-xs md:w-1/3 lg:w-1/4 flex-shrink-0
+                                        transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40">
+                <div class="p-3 h-full overflow-y-auto">
+                    <div class="flex justify-between items-center p-2 mb-2 border-b border-[var(--border-color)]">
+                        <h2 class="text-lg font-bold text-[var(--text-color)]">Intelligence Menu</h2>
+                        <!-- Mobile Close Button -->
+                        <button id="menu-close-btn" class="p-2 rounded-md md:hidden text-[var(--text-color)] hover:bg-[var(--bg-color)]">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <nav id="fraud-list-container" class="space-y-1"></nav>
                 </div>
             </aside>
 
             <!-- Right Column (Content) -->
-            <section id="content-container"
-                class="flex-grow mt-4 md:mt-0 bg-[var(--panel-bg)] p-4 sm:p-6 rounded-2xl shadow-xl overflow-y-auto">
+            <section id="content-container" class="flex-grow p-4 sm:p-6 overflow-y-auto">
                 <!-- JS will populate this content area -->
             </section>
         </main>
@@ -168,24 +160,41 @@
         const fraudListContainer = document.getElementById('fraud-list-container');
         const contentContainer = document.getElementById('content-container');
         const themeSwitcher = document.getElementById('theme-switcher');
+        
+        // Mobile menu elements
+        const openMenuBtn = document.getElementById('menu-open-btn');
+        const closeMenuBtn = document.getElementById('menu-close-btn');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const navSidebar = document.getElementById('nav-sidebar');
 
         let allFraudData = [];
-        let selectedFraudId = 'overview-chart'; // Default view
+        let selectedFraudId = 'overview-chart'; 
+
+        // --- MOBILE MENU LOGIC ---
+        const openMenu = () => {
+            navSidebar.classList.remove('-translate-x-full');
+            menuOverlay.classList.remove('hidden');
+        };
+        const closeMenu = () => {
+            navSidebar.classList.add('-translate-x-full');
+            menuOverlay.classList.add('hidden');
+        };
+
+        openMenuBtn.addEventListener('click', openMenu);
+        closeMenuBtn.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', closeMenu);
 
         // --- THEME LOGIC ---
         const applyTheme = (theme) => {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
-
             themeSwitcher.querySelectorAll('.theme-btn').forEach(btn => {
                 btn.setAttribute('data-active', btn.dataset.theme === theme);
             });
-            // Re-render content to apply new theme colors to charts if overview is selected
             if (selectedFraudId === 'overview-chart') {
                 renderContent();
             }
         };
-
         themeSwitcher.addEventListener('click', (e) => {
             if (e.target.classList.contains('theme-btn')) {
                 applyTheme(e.target.dataset.theme);
@@ -197,10 +206,7 @@
             fraudListContainer.innerHTML = '';
             allFraudData.forEach(fraud => {
                 const isSelected = selectedFraudId === fraud.id;
-                const listItemClasses = `flex items-center p-3 rounded-lg cursor-pointer transition-colors duration-200 ${isSelected
-                    ? 'text-[var(--accent-text-color)] bg-[var(--accent-color)] shadow-sm'
-                    : 'text-[var(--text-color)] hover:bg-[var(--bg-color)]'
-                    }`;
+                const listItemClasses = `flex items-center p-3 rounded-lg cursor-pointer transition-colors duration-200 ${isSelected ? 'text-[var(--accent-text-color)] bg-[var(--accent-color)] shadow-sm' : 'text-[var(--text-color)] hover:bg-[var(--bg-color)]'}`;
 
                 const listItem = document.createElement('div');
                 listItem.className = listItemClasses;
@@ -214,44 +220,37 @@
                     selectedFraudId = fraud.id;
                     renderFraudList();
                     renderContent();
+                    if (window.innerWidth < 768) { 
+                        closeMenu();
+                    }
                 });
                 fraudListContainer.appendChild(listItem);
             });
         };
 
         const renderContent = () => {
-            // **UPDATED**: Render the overview page with two charts
+            contentContainer.scrollTop = 0; 
             if (selectedFraudId === 'overview-chart') {
                 contentContainer.innerHTML = `
                     <div class="animate-fade-in">
                         <h2 class="text-3xl sm:text-4xl font-extrabold text-[var(--text-color)] mb-4">Fraud Landscape Overview</h2>
                         <p class="text-[var(--text-muted-color)] mb-8">This section provides a dual perspective on the GST fraud landscape, illustrating both the most common types of fraud detected and the industries most frequently implicated in these schemes.</p>
-                        
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-                            <!-- Chart 1: By Fraud Type -->
-                            <div class="bg-[var(--bg-color)] p-4 rounded-xl shadow-md">
-                                <canvas id="fraudTypeChart"></canvas>
-                            </div>
-                            <!-- Chart 2: By Industry -->
-                            <div class="bg-[var(--bg-color)] p-4 rounded-xl shadow-md">
-                                <canvas id="industryChart"></canvas>
-                            </div>
+                            <div class="bg-[var(--bg-color)] p-4 rounded-xl shadow-md"><canvas id="fraudTypeChart"></canvas></div>
+                            <div class="bg-[var(--bg-color)] p-4 rounded-xl shadow-md"><canvas id="industryChart"></canvas></div>
                         </div>
                     </div>`;
-
-                // Chart.js rendering logic
+                
                 const rootStyle = getComputedStyle(document.documentElement);
                 const chartTextColor = rootStyle.getPropertyValue('--text-muted-color').trim();
                 const chartBorderColor = rootStyle.getPropertyValue('--border-color').trim();
                 const chartTitleColor = rootStyle.getPropertyValue('--text-color').trim();
                 Chart.defaults.color = chartTextColor;
-
-                // Render Fraud Type Chart (Bar)
-                const ctxType = document.getElementById('fraudTypeChart').getContext('2d');
-                new Chart(ctxType, {
+                
+                new Chart(document.getElementById('fraudTypeChart').getContext('2d'), { 
                     type: 'bar',
                     data: {
-                        labels: ['Fake ITC Claims', 'Underreporting Sales', 'Export Fraud', 'Misclassification', 'Circular Trading', 'Non-Filing'],
+                        labels: ['Fictitious Invoicing', 'Underreporting Sales', 'Export Fraud', 'Misclassification', 'Chain Transactions', 'Non-Filing'],
                         datasets: [{
                             label: 'Prevalence of Fraud Type (%)',
                             data: [45, 25, 12, 8, 7, 3],
@@ -260,18 +259,9 @@
                             borderWidth: 1
                         }]
                     },
-                    options: {
-                        indexAxis: 'y',
-                        scales: { x: { beginAtZero: true, grid: { color: chartBorderColor } }, y: { grid: { color: chartBorderColor } } },
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, title: { display: true, text: 'Common GST Fraud Schemes', color: chartTitleColor, font: { size: 16 } } }
-                    }
+                    options: { indexAxis: 'y', scales: { x: { beginAtZero: true, grid: { color: chartBorderColor } }, y: { grid: { color: chartBorderColor } } }, responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Common GST Fraud Schemes', color: chartTitleColor, font: {size: 16} } } }
                 });
-
-                // Render Industry Chart (Doughnut)
-                const ctxIndustry = document.getElementById('industryChart').getContext('2d');
-                new Chart(ctxIndustry, {
+                new Chart(document.getElementById('industryChart').getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: ['Metal & Scrap Trading', 'Real Estate & Construction', 'Services Sector', 'FMCG & Retail', 'Textiles', 'Others'],
@@ -283,27 +273,20 @@
                             borderWidth: 2
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top', labels: { color: chartTextColor } }, title: { display: true, text: 'Industries Prone to GST Fraud', color: chartTitleColor, font: { size: 16 } } }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: {color: chartTextColor} }, title: { display: true, text: 'Industries Prone to GST Fraud', color: chartTitleColor, font: {size: 16} } } }
                 });
-
                 return;
             }
 
-            // Find the selected fraud data
             const fraud = allFraudData.find(f => f.id === selectedFraudId);
             if (!fraud) {
                 contentContainer.innerHTML = `<p class="text-red-500">Error: Could not find the selected fraud data.</p>`;
                 return;
             }
 
-            // Render the detailed fraud view with the "Investigator's Handbook" tab
             contentContainer.innerHTML = `
                 <div class="animate-fade-in">
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-[var(--text-color)] mb-4">${fraud.title}</h2>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-[var(--text-color)] mb-4">${fraud.title}</h2>
                     <div class="flex border-b border-[var(--border-color)] mb-6">
                         <button class="tab-btn px-4 py-2 text-[var(--text-muted-color)] text-sm sm:text-base active" data-tab="overview">Overview</button>
                         <button class="tab-btn px-4 py-2 text-[var(--text-muted-color)] text-sm sm:text-base" data-tab="handbook">Investigator's Handbook</button>
@@ -315,36 +298,29 @@
                             <div class="p-4 bg-indigo-50/20 border-l-4 border-indigo-400 rounded-r-lg"><div class="text-[var(--text-muted-color)]">${fraud.caseStudy.replace(/text-gray-600/g, 'text-[var(--text-muted-color)]').replace(/text-indigo-700/g, 'text-indigo-500')}</div></div>
                         </div>
                         <div id="handbook-content" class="tab-pane space-y-8">
-                             <div>
-                                <h3 class="text-2xl font-bold text-[var(--text-color)] mb-3 border-b pb-2 border-[var(--border-color)]">Commonly Involved Industries</h3>
-                                <div class="flex flex-wrap gap-2 pt-2">
-                                    ${fraud.involvedIndustries.map(industry => `<span class="bg-[var(--tag-bg)] text-[var(--tag-text)] text-sm font-medium px-3 py-1 rounded-full">${industry}</span>`).join('')}
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-[var(--text-color)] mb-4 border-b pb-2 border-[var(--border-color)]">Investigation Guide</h3>
-                                <div class="text-[var(--text-muted-color)]">${fraud.investigationGuide.replace(/text-gray-600/g, 'text-[var(--text-muted-color)]').replace(/text-gray-700/g, 'text-[var(--text-color)]').replace(/text-gray-800/g, 'text-[var(--text-color)] font-bold')}</div>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-[var(--text-color)] mb-4 border-b pb-2 border-[var(--border-color)]">Applicable Acts & Rules</h3>
-                                <div class="text-[var(--text-muted-color)]">${(fraud.applicableLaws || '<p>No specific laws listed.</p>').replace(/text-gray-600/g, 'text-[var(--text-muted-color)]').replace(/text-gray-700/g, 'text-[var(--text-color)]').replace(/text-gray-800/g, 'text-[var(--text-color)] font-bold')}</div>
-                            </div>
+                             <div><h3 class="text-xl font-bold text-[var(--text-color)] mb-3 border-b pb-2 border-[var(--border-color)]">Commonly Involved Industries</h3><div class="flex flex-wrap gap-2 pt-2">${fraud.involvedIndustries.map(industry => `<span class="bg-[var(--tag-bg)] text-[var(--tag-text)] text-xs sm:text-sm font-medium px-3 py-1 rounded-full">${industry}</span>`).join('')}</div></div>
+                             <div><h3 class="text-xl font-bold text-[var(--text-color)] mb-4 border-b pb-2 border-[var(--border-color)]">Investigation Guide</h3><div class="text-[var(--text-muted-color)]">${fraud.investigationGuide.replace(/text-gray-600/g, 'text-[var(--text-muted-color)]').replace(/text-gray-700/g, 'text-[var(--text-color)]').replace(/text-gray-800/g, 'text-[var(--text-color)] font-bold')}</div></div>
+                             <div><h3 class="text-xl font-bold text-[var(--text-color)] mb-4 border-b pb-2 border-[var(--border-color)]">Applicable Acts & Rules</h3><div class="text-[var(--text-muted-color)]">${(fraud.applicableLaws || '<p>No specific laws listed.</p>').replace(/text-gray-600/g, 'text-[var(--text-muted-color)]').replace(/text-gray-700/g, 'text-[var(--text-color)]').replace(/text-gray-800/g, 'text-[var(--text-color)] font-bold')}</div></div>
                         </div>
                     </div>
                 </div>`;
-
-            // Add event listeners for the tab structure
+            
+            // **FIXED TAB LOGIC**
             const tabButtons = contentContainer.querySelectorAll('.tab-btn');
-            const tabPanes = contentContainer.querySelectorAll('.tab-pane');
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    // Find and deactivate the currently active tab and pane
+                    const currentActiveButton = contentContainer.querySelector('.tab-btn.active');
+                    if (currentActiveButton) currentActiveButton.classList.remove('active');
+                    
+                    const currentActivePane = contentContainer.querySelector('.tab-pane.active');
+                    if (currentActivePane) currentActivePane.classList.remove('active');
+
+                    // Activate the new tab and pane
                     button.classList.add('active');
-                    const tabId = button.getAttribute('data-tab');
-                    tabPanes.forEach(pane => {
-                        pane.classList.remove('active');
-                        if (pane.id === `${tabId}-content`) pane.classList.add('active');
-                    });
+                    const tabId = button.dataset.tab;
+                    const newActivePane = contentContainer.querySelector(`#${tabId}-content`);
+                    if (newActivePane) newActivePane.classList.add('active');
                 });
             });
         };
@@ -363,10 +339,9 @@
                 applyTheme(localStorage.getItem('theme') || 'light');
             } else {
                 console.error('Error: fraud_data.js did not load or the fraudData variable is not defined.');
-                fraudListContainer.innerHTML = `<p class="p-4 text-red-500">Failed to load data. Please check the browser console for errors.</p>`;
+                contentContainer.innerHTML = `<p class="p-4 text-red-500">Failed to load data. Please check the browser console for errors.</p>`;
             }
         };
     </script>
 </body>
-
 </html>
